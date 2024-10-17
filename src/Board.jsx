@@ -3,6 +3,7 @@ import './Board.css';
 
 function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(''));
+    
     let colors = {
         '2': '#F0E4D9',
         '4': '#EFE0C5',
