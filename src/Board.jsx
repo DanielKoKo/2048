@@ -4,6 +4,7 @@ import './Board.css';
 function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(0));
     const [init, setInit] = useState(false);
+    const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
     let indexMap = [
         [0, 1, 2, 3],
@@ -24,28 +25,19 @@ function Board() {
     }
     
     useEffect(() => {
-        if (!init) {
-            placeRandomTile();
-            placeRandomTile();
-            
-            // testing purposes
-            //const newTiles = [...tiles];
-            //newTiles[0] = 4;
-            //newTiles[1] = 2;
-            // newTiles[2] = 8;
-            // newTiles[3] = 16;
-            // newTiles[4] = 2;
-            //setTiles(newTiles);
-
-            setInit(true);
-        }
-
+        if (!init) { initBoard(); }
         window.addEventListener('keydown', moveTiles);
 
         return () => {
             window.removeEventListener('keydown', moveTiles);
         }
     }, []);
+
+    function initBoard() {
+        placeRandomTile();
+        placeRandomTile();
+        setInit(true);
+    }
 
     function placeRandomTile() {
         // arrow function ensures that we're working with the most current state
@@ -70,105 +62,44 @@ function Board() {
     }
 
     function moveTiles(e) {
-        const input = e.key;
-        //console.log(direction);
-        if (input === 'ArrowUp')
-            moveCol('ArrowUp');
-        else if (input === 'ArrowDown')
-            moveCol('ArrowDown');
-        else if (input === 'ArrowLeft')
-            moveRow('ArrowLeft');
-        else if (input === 'ArrowRight')
-            moveRow('ArrowRight');
-        else
-            return;
+        const direction = e.key;
+
+        // return if input isn't an arrow key
+        if (!validDirections.includes(direction)) { return; }
+
+        const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
+        const reverseStack = direction === 'ArrowDown' || direction === 'ArrowRight';
+
+        setTiles((prevTiles) => {
+            const newTiles = [...prevTiles];
+
+            for (let i = 0; i < 4; i++) {
+                let stack = [];
+
+                for (let j = 0; j < 4; j++) {
+                    const curr = isVertical ? indexMap[j][i] : indexMap[i][j];
+
+                    // only add tiles with values to stack
+                    if (newTiles[curr] > 0)
+                        stack.push(newTiles[curr]);
+                }
+
+                stack = stack.reverse();
+
+                // reverse the stack if going down
+                if (reverseStack)
+                    stack = stack.reverse();
+
+                combine(i, direction, stack, newTiles);
+            }
+
+            return newTiles;
+        })
 
         placeRandomTile();
     }
 
-    function moveCol(direction) {
-        setTiles((prevTiles) => {
-            const newTiles = [...prevTiles];
-
-            for (let c = 0; c < 4; c++) {
-                let stack = [];
-
-                for (let r = 3; r >= 0; r--) {
-                    const curr = indexMap[r][c];
-
-                    // only add tiles with values to stack
-                    if (newTiles[curr] > 0)
-                        stack.push(newTiles[curr]);
-                }
-
-                // reverse the stack if going down
-                if (direction === 'ArrowDown')
-                    stack = stack.reverse();
-
-                combine(c, direction, stack, newTiles);
-                //console.log(newTiles);
-            }
-
-            /*
-            for (let r = 1; r < 4; r++) {
-                for (let c = 0; c < 4; c++) {
-                    const curr = indexMap[r][c];
-                    const dest = indexMap[r - 1][c];
-
-                    if (newTiles[curr] === '')
-                        continue;
-
-                    if (newTiles[dest] === '') {
-                        newTiles[dest] = newTiles[curr];
-                    }
-                    else if (newTiles[dest] === newTiles[curr]) {
-                        newTiles[dest] = (parseInt(newTiles[dest]) + parseInt(newTiles[curr])).toString();
-                    }
-                    else {
-                        continue;
-                    }
-
-                    newTiles[curr] = '';
-                }
-            } 
-            */
-
-            return newTiles;
-        })
-
-        //console.log("prevtiles: " + p);
-        //console.log("tiles: " + tiles);
-    }
-
-    function moveRow(direction) {
-        setTiles((prevTiles) => {
-            const newTiles = [...prevTiles];
-
-            // traverse by column
-            for (let r = 0; r < 4; r++) {
-                let stack = [];
-
-                for (let c = 0; c < 4; c++) {
-                    const curr = indexMap[r][c];
-
-                    // only add tiles with values to stack
-                    if (newTiles[curr] > 0)
-                        stack.push(newTiles[curr]);
-                }
-
-                // reverse the stack if going left
-                if (direction === 'ArrowLeft')
-                    stack = stack.reverse();
-
-                combine(r, direction, stack, newTiles);
-                //console.log(newTiles);
-            }
-
-            return newTiles;
-        })
-    }
-
-    function combine(rowCol, direction, stack, newTiles) {
+    function combine(i, direction, stack, newTiles) {
         let res = [];
         
         // combine values
@@ -183,34 +114,24 @@ function Board() {
             }
         }
 
-        // fill remaining spaces with ''
+        // fill remaining spaces with 0s
         const rem_len = 4 - res.length;
         res = res.concat(Array(rem_len).fill(0))
 
-        // flip column if direction is down
+        // flip stack if direction is down or right
         if (direction === 'ArrowDown' || direction === 'ArrowRight')
             res = res.reverse();
 
-        //console.log('res: ' + res);
-
         // fill row/column with combined values
-        if (direction === 'ArrowUp' || direction === 'ArrowDown')
-            fillCol(rowCol, res, newTiles);
-        else
-            fillRow(rowCol, res, newTiles);
+        (direction === 'ArrowUp' || 
+         direction === 'ArrowDown') ? fill(i, 'vertical', res, newTiles) :
+                                      fill(i, 'horizontal', res, newTiles);
     }
 
-    function fillCol(col, res, newTiles) {
-        for (let r = 0; r < 4; r++) {
-            const dest = indexMap[r][col];
-            newTiles[dest] = res[r];
-        }
-    }
-
-    function fillRow(row, res, newTiles) {
-        for (let c = 0; c < 4; c++) {
-            const dest = indexMap[row][c];
-            newTiles[dest] = res[c];
+    function fill(i, direction, res, newTiles) {
+        for (let j = 0; j < 4; j++) {
+            const dest = direction === 'vertical' ? indexMap[j][i] : indexMap[i][j];
+            newTiles[dest] = res[j];
         }
     }
 
