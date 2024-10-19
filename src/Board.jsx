@@ -1,63 +1,66 @@
 import React, {useState, useEffect} from 'react';
 import './Board.css';
 
+// map of index positions for the tiles on the board
+const indexMap = [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7],
+    [8, 9, 10, 11],
+    [12, 13, 14, 15]
+];
+
+// color mapping for different tile values
+const colorMap = {
+    2: '#F0E4D9',
+    4: '#EFE0C5',
+    8: '#FCAE6F',
+    16: '#FF9057',
+    32: '#FF7456',
+    64: '#F45833',
+    128: '#F1CF61',
+    256: '#F2CC49'
+}
+
 function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(0));
-    const [init, setInit] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-
-    let indexMap = [
-        [0, 1, 2, 3],
-        [4, 5, 6, 7],
-        [8, 9, 10, 11],
-        [12, 13, 14, 15]
-    ];
-
-    let colorMap = {
-        2: '#F0E4D9',
-        4: '#EFE0C5',
-        8: '#FCAE6F',
-        16: '#FF9057',
-        32: '#FF7456',
-        64: '#F45833',
-        128: '#F1CF61',
-        256: '#F2CC49'
-    }
     
     useEffect(() => {
-        if (!init) { initBoard(); }
-        window.addEventListener('keydown', moveTiles);
+        if (!isInitialized) { initBoard(); }
+
+        window.addEventListener('keydown', handleTileMovement);
 
         // clean up
-        return () => {
-            window.removeEventListener('keydown', moveTiles);
-        }
+        return () => { window.removeEventListener('keydown', handleTileMovement); }
     }, []);
 
     /*
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        placeRandomTile();
-        placeRandomTile();
+        generateTile();
+        generateTile();
 
-        setInit(true);
+        setIsInitialized(true);
     }
 
     /*
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
     */
-    function placeRandomTile() {
+    function generateTile() {
         // arrow function ensures that we're working with the most current state
         // fixes issue where only 1 tile is generated upon startup
         setTiles((prevTiles) => {
             let newTile;
 
+            // generate a random tile
             do {
-                newTile = Math.floor(Math.random() * 17);
-            } while (prevTiles[newTile] !== 0);
+                newTile = Math.floor(Math.random() * 16);
+            } while (prevTiles[newTile] !== 0); // if new tile is occupied, regenerate
     
+            console.log('new tile at: ' + newTile);
             const newTiles = [...prevTiles];
 
             // generate either 2 or 4 if board contains a 4, otherwise generate 2
@@ -71,10 +74,9 @@ function Board() {
     }
 
     /*
-        determine direction to shift tiles and call combine() to shift all tiles,
-        then place a new random tile
+        handles tile movement based on arrow key input
     */
-    function moveTiles(e) {
+    function handleTileMovement(e) {
         const direction = e.key;
 
         // return if input isn't an arrow key
@@ -83,10 +85,10 @@ function Board() {
         const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
         const reverseStack = direction === 'ArrowDown' || direction === 'ArrowRight';
 
-        setTiles((prev) => {
-            const prevTiles = [...prev];
-            const newTiles = [...prev]; 
+        setTiles((prevTiles) => {
+            const newTiles = [...prevTiles]; 
 
+            // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
                 let stack = []; // store entire row/column in stack
 
@@ -104,13 +106,12 @@ function Board() {
                 if (reverseStack)
                     stack = stack.reverse();
 
-                combine(i, direction, stack, newTiles);
+                combineTiles(i, direction, stack, newTiles);
             }
 
-            // compares previous tiles and new tiles to see if board has changed
-            // if unchanged, don't generate new tile
+            // if board is unchanged (i.e. not a valid move), don't generate new tile
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
-                placeRandomTile();
+                generateTile();
 
             return newTiles;
         })
@@ -119,11 +120,11 @@ function Board() {
     /*
         shifts the current row/column by joining values 
     */
-    function combine(i, direction, stack, newTiles) {
+    function combineTiles(i, direction, stack, newTiles) {
         let res = [];
         
-        // combine values
         while (stack.length > 0) {
+            // if there are more than 2 values, combine the top 2 if possible, otherwise just push
             if (stack.length > 1 && (stack[stack.length - 1] === stack[stack.length - 2])) {
                 const val = stack.pop() * 2;
                 stack.pop();
@@ -135,8 +136,7 @@ function Board() {
         }
 
         // fill remaining spaces with 0s
-        const rem_len = 4 - res.length;
-        res = res.concat(Array(rem_len).fill(0))
+        res = res.concat(Array(4 - res.length).fill(0))
 
         // flip stack if direction is down or right
         if (direction === 'ArrowDown' || direction === 'ArrowRight')
@@ -144,14 +144,14 @@ function Board() {
 
         // fill row/column with combined values
         (direction === 'ArrowUp' || 
-         direction === 'ArrowDown') ? fill(i, 'vertical', res, newTiles) :
-                                      fill(i, 'horizontal', res, newTiles);
+         direction === 'ArrowDown') ? fillTiles(i, 'vertical', res, newTiles) :
+                                      fillTiles(i, 'horizontal', res, newTiles);
     }
 
     /*
         update the current row/column with new values 
     */
-    function fill(i, direction, res, newTiles) {
+    function fillTiles(i, direction, res, newTiles) {
         for (let j = 0; j < 4; j++) {
             const dest = direction === 'vertical' ? indexMap[j][i] : indexMap[i][j];
             newTiles[dest] = res[j];
