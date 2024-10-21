@@ -57,13 +57,15 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        generateTile([]);
-        generateTile([]);
+        generateTile(Array.from(Array(16).keys()));
+        generateTile(Array.from(Array(16).keys()));
         
         // testing purposes
         // const newTiles = [...tiles];
-        // newTiles[13] = 2;
-        // newTiles[15] = 8;
+        // newTiles[0] = 8;
+        // newTiles[4] = 8;
+        // newTiles[8] = 8;
+        // newTiles[12] = 8;
         // setTiles(newTiles);
 
         setIsInitialized(true);
@@ -109,19 +111,19 @@ function Board() {
         }
 
         handleTileMovement(direction);
-      }
+    }
 
     /*
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
     */
-    function generateTile(prevPositions) {
+    function generateTile(available) {
         // arrow function ensures that we're working with the most current state
         // fixes issue where only 1 tile is generated upon startup
         setTiles((prevTiles) => {
-            const newPosition = generatePosition(prevTiles, prevPositions);
-    
             const newTiles = [...prevTiles];
+            const newPosition = available[Math.floor(Math.random() * available.length)]; // generate new tile from available positions
+            console.log('new tile at: ' + newPosition);
 
             // generate either 2 or 4 if board contains a 4, otherwise generate 2
             newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
@@ -131,24 +133,25 @@ function Board() {
     }
 
     /*
-        generate new tile position
+        generate array of available positions for new tile
     */
-    const generatePosition = (prevTiles, prevPositions) => { 
-        let newPosition;
+    function generateAvailable(newTiles) {
+        let available = [];
 
-        // if tile is occupied or was occupied before shifting, regenerate
-        do {
-            newPosition = Math.floor(Math.random() * 16);
-        } while (prevTiles[newPosition] !== 0 || prevPositions.includes(newPosition));
+        for (let i = 0; i < newTiles.length; i++) {
+            if (newTiles[i] == 0) 
+                available.push(i);
+        }
 
-        console.log('new tile at: ' + newPosition);
-        return newPosition;
+        return available;
     }
 
     /*
         generate new tile value (2 or 4) with 90% probability of it being 2
     */
-    const generateRandom = () => { return Math.floor(Math.random() < 0.9 ? 2 : 4) };
+    function generateRandom() { 
+        return Math.floor(Math.random() < 0.9 ? 2 : 4) 
+    }
 
     /*
         handles tile movement based on arrow key input
@@ -159,7 +162,7 @@ function Board() {
 
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
-            let prevPositions = [];
+            console.log('prevTiles: ', newTiles);
 
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
@@ -169,10 +172,8 @@ function Board() {
                     const curr = isVertical ? indexMap[j][i] : indexMap[i][j];
 
                     // only add tiles with values to stack
-                    if (newTiles[curr] > 0) {
+                    if (newTiles[curr] > 0) 
                         stack.push(newTiles[curr]);
-                        prevPositions.push(curr);
-                    }
                 }
 
                 stack = stack.reverse();
@@ -184,12 +185,18 @@ function Board() {
                 combineTiles(i, direction, stack, newTiles);
             }
 
+            const available = generateAvailable(newTiles);
+            console.log('available: ' + available);
+
             // generate new tile only if tiles have changed
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
-                generateTile(prevPositions);
+                generateTile(available);
+
+            console.log('newTiles: ' + newTiles);
 
             return newTiles;
         });
+        console.log('\n');
 
         // Set pendingScore after all tiles have been updated
         //setPendingScore(currScore);
