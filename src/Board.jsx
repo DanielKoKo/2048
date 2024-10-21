@@ -1,4 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
+import { GameContext } from './App';
+import Tile from './Tile';
 import './Board.css';
 
 // map of index positions for the tiles on the board
@@ -9,22 +11,12 @@ const indexMap = [
     [12, 13, 14, 15]
 ];
 
-// color mapping for different tile values
-const colorMap = {
-    2: '#F0E4D9',
-    4: '#EFE0C5',
-    8: '#FCAE6F',
-    16: '#FF9057',
-    32: '#FF7456',
-    64: '#F45833',
-    128: '#F1CF61',
-    256: '#F2CC49'
-}
-
-function Board({ isReset, handleReset }) {
+function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(0));
+    const { isReset, handleReset } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
@@ -222,25 +214,17 @@ function Board({ isReset, handleReset }) {
     }
 
     /*
-        renders a single tile
+        renders all tiles
     */
-    function renderTile(i) {
-        // background and text color based on value
-        const background = colorMap[tiles[i]] || '#CFC1B2';
-        const text = parseInt(tiles[i]) < 8 ? '#796E64' : '#F9F6F1';
-
-        return (
-            <div className="tile" style={{backgroundColor: background, color: text}}>
-                {tiles[i] > 0 ? tiles[i] : null}
-            </div>
-        )
+    function renderTiles() {
+        return tiles.map((val, i) => <Tile key={i} val={val}/>);
     }
 
     return (
         <>
             <div className='game-over' display='none'>
                 <div className='board' onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                    {tiles.map((_, i) => renderTile(i))}
+                    {renderTiles()}
                 </div>
             </div>
         </>

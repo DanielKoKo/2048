@@ -3,6 +3,8 @@ import TopTab from './TopTab';
 import Board from './Board';
 import './App.css';
 
+export const GameContext = createContext();
+
 function App() {
   const [isReset, setIsReset] = useState(false);
 
@@ -12,8 +14,10 @@ function App() {
 
   return (
     <>
-      <TopTab handleReset={handleReset}/>
-      <Board isReset={isReset} handleReset={handleReset}/>
+      <GameContext.Provider value={{ isReset, handleReset }}>
+        <TopTab/>
+        <Board/>
+      </GameContext.Provider>
     </>
   )
 }

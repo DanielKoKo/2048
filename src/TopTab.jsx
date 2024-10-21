@@ -1,8 +1,11 @@
-import React, {useState} from 'react';
+import React, {useContext} from 'react';
 import Score from './Score';
+import { GameContext } from './App';
 import './TopTab.css';
 
-function TopTab({ handleReset }) {
+function TopTab() {
+    const { handleReset } = useContext(GameContext);
+
     function onReset() {
         handleReset(true);
     }
