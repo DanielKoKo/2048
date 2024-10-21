@@ -57,14 +57,14 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        //generateTile();
-        //generateTile();
+        generateTile([]);
+        generateTile([]);
         
         // testing purposes
-        const newTiles = [...tiles];
-        newTiles[13] = 2;
-        newTiles[15] = 8;
-        setTiles(newTiles);
+        // const newTiles = [...tiles];
+        // newTiles[13] = 2;
+        // newTiles[15] = 8;
+        // setTiles(newTiles);
 
         setIsInitialized(true);
     }
@@ -119,26 +119,36 @@ function Board() {
         // arrow function ensures that we're working with the most current state
         // fixes issue where only 1 tile is generated upon startup
         setTiles((prevTiles) => {
-            let newTile;
-
-            // generate a random tile
-            // if tile is occupied or was occupied before shifting, regenerate
-            do {
-                newTile = Math.floor(Math.random() * 16);
-            } while (prevTiles[newTile] !== 0 && prevPositions.includes(newTile));
+            const newPosition = generatePosition(prevTiles, prevPositions);
     
-            console.log('new tile at: ' + newTile);
             const newTiles = [...prevTiles];
 
             // generate either 2 or 4 if board contains a 4, otherwise generate 2
-            if (tiles.includes(4)) 
-                newTiles[newTile] = Math.floor(Math.random() < 0.5 ? 2 : 4);
-            else 
-                newTiles[newTile] = 2;
+            newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
             
             return newTiles;
-        })
+        });
     }
+
+    /*
+        generate new tile position
+    */
+    const generatePosition = (prevTiles, prevPositions) => { 
+        let newPosition;
+
+        // if tile is occupied or was occupied before shifting, regenerate
+        do {
+            newPosition = Math.floor(Math.random() * 16);
+        } while (prevTiles[newPosition] !== 0 || prevPositions.includes(newPosition));
+
+        console.log('new tile at: ' + newPosition);
+        return newPosition;
+    }
+
+    /*
+        generate new tile value (2 or 4) with 90% probability of it being 2
+    */
+    const generateRandom = () => { return Math.floor(Math.random() < 0.9 ? 2 : 4) };
 
     /*
         handles tile movement based on arrow key input
