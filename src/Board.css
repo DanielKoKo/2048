@@ -1,7 +1,7 @@
 body {
     display: flex;
     justify-content: center;
-    touch-action: none;
+    overflow: hidden; /* prevent scrolling */
 }
 
 .board {
@@ -18,7 +18,10 @@ body {
     height: auto;
     max-width: 650px;
     background-color: #BDAD9E;
+}
 
+.game-over {
+    
 }
 
 .tile {

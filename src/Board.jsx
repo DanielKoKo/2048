@@ -21,19 +21,45 @@ const colorMap = {
     256: '#F2CC49'
 }
 
-function Board() {
+function Board({ isReset, handleReset }) {
     const [tiles, setTiles] = useState(Array(16).fill(0));
     const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+    const [touchStart, setTouchStart] = useState(null)
+    const [touchEnd, setTouchEnd] = useState(null)
+    const [touchStartX, setTouchStartX] = useState(null)
+    const [touchEndX, setTouchEndX] = useState(null)
+    const [touchStartY, setTouchStartY] = useState(null)
+    const [touchEndY, setTouchEndY] = useState(null)
     
+    // the required distance between touchStart and touchEnd to be detected as a swipe
+    const minSwipeDistance = 50;
+
     useEffect(() => {
         if (!isInitialized) { initBoard(); }
 
-        window.addEventListener('keydown', handleTileMovement);
+        window.addEventListener('keydown', onKeyPress);
 
         // clean up
-        return () => { window.removeEventListener('keydown', handleTileMovement); }
+        return () => { window.removeEventListener('keydown', onKeyPress); }
     }, []);
+
+    // reset the board if isReset == true
+    useEffect(() => {
+        if (isReset) {
+            resetBoard();
+            handleReset(false); // reset the isReset variable
+        }
+    }, [isReset]);
+
+    /*
+        reset board and regenerate first 2 tiles
+    */
+    function resetBoard() {
+        setTiles(Array(16).fill(0));
+        initBoard();
+    }
 
     /*
         initializes board with 2 random tiles with value 2
@@ -44,6 +70,48 @@ function Board() {
 
         setIsInitialized(true);
     }
+
+    function onKeyPress(e) {
+        const direction = e.key;
+
+        // return if input isn't an arrow key
+        if (!validDirections.includes(direction)) { return; }
+
+        handleTileMovement(direction);
+    }
+
+    function onTouchStart(e) {
+        setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
+        setTouchStart(e.targetTouches[0].clientX);
+        setTouchStartX(e.targetTouches[0].clientX);
+        setTouchStartY(e.targetTouches[0].clientY);
+    }
+
+    function onTouchMove(e) {
+        setTouchEnd(e.targetTouches[0].clientX);
+        setTouchEndX(e.targetTouches[0].clientX);
+        setTouchEndY(e.targetTouches[0].clientY);
+    }
+
+    function onTouchEnd() {
+        if (!touchStart || !touchEnd) return
+
+        const deltaX = touchStartX - touchEndX;
+        const deltaY = touchStartY - touchEndY;
+        const isLeft = deltaX > minSwipeDistance;
+        const isUp = deltaY > minSwipeDistance;
+        const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+        let direction;
+
+        if (isHorizontalSwipe) {
+            direction = isLeft ? 'ArrowLeft' : 'ArrowRight';
+        }
+        else {
+            direction = isUp ? 'ArrowUp' : 'ArrowDown';
+        }
+
+        handleTileMovement(direction);
+      }
 
     /*
         places a new random tile (either 2 or 4) on the board
@@ -76,12 +144,7 @@ function Board() {
     /*
         handles tile movement based on arrow key input
     */
-    function handleTileMovement(e) {
-        const direction = e.key;
-
-        // return if input isn't an arrow key
-        if (!validDirections.includes(direction)) { return; }
-
+    function handleTileMovement(direction) {
         const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
         const reverseStack = direction === 'ArrowDown' || direction === 'ArrowRight';
 
@@ -109,7 +172,7 @@ function Board() {
                 combineTiles(i, direction, stack, newTiles);
             }
 
-            // if board is unchanged (i.e. not a valid move), don't generate new tile
+            // check if tiles have changed (if not, dont' generate new random tile)
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
                 generateTile();
 
@@ -174,9 +237,13 @@ function Board() {
     }
 
     return (
-        <div className='board'>
-            {tiles.map((_, i) => renderTile(i))}
-        </div>
+        <>
+            <div className='game-over' display='none'>
+                <div className='board' onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+                    {tiles.map((_, i) => renderTile(i))}
+                </div>
+            </div>
+        </>
     )
 }
 

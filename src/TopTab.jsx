@@ -2,7 +2,11 @@ import React, {useState} from 'react';
 import Score from './Score';
 import './TopTab.css';
 
-function TopTab() {
+function TopTab({ handleReset }) {
+    function onReset() {
+        handleReset(true);
+    }
+
     return (
         <div className='rows'>
             <div className='title-and-scores'>
@@ -11,7 +15,7 @@ function TopTab() {
             </div>
             <div className='new-game-row'>
                 <p>Join the numbers and get to the <strong>2048</strong> tile!</p>
-                <button>New Game</button> 
+                <button onClick={() => {onReset()}}>New Game</button> 
             </div>
         </div>
     )
