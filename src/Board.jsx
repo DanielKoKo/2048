@@ -17,13 +17,13 @@ function Board() {
     const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
     
-
-    const [touchStart, setTouchStart] = useState(null)
-    const [touchEnd, setTouchEnd] = useState(null)
-    const [touchStartX, setTouchStartX] = useState(null)
-    const [touchEndX, setTouchEndX] = useState(null)
-    const [touchStartY, setTouchStartY] = useState(null)
-    const [touchEndY, setTouchEndY] = useState(null)
+    // for mobile swipes
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    const [touchStartX, setTouchStartX] = useState(null);
+    const [touchEndX, setTouchEndX] = useState(null);
+    const [touchStartY, setTouchStartY] = useState(null);
+    const [touchEndY, setTouchEndY] = useState(null);
     
     // the required distance between touchStart and touchEnd to be detected as a swipe
     const minSwipeDistance = 50;
@@ -44,7 +44,7 @@ function Board() {
             handleReset(false); // reset the isReset variable
         }
     }, [isReset]);
-
+    
     /*
         reset board and regenerate first 2 tiles
     */
@@ -57,8 +57,14 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        generateTile();
-        generateTile();
+        //generateTile();
+        //generateTile();
+        
+        // testing purposes
+        const newTiles = [...tiles];
+        newTiles[13] = 2;
+        newTiles[15] = 8;
+        setTiles(newTiles);
 
         setIsInitialized(true);
     }
@@ -109,16 +115,17 @@ function Board() {
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
     */
-    function generateTile() {
+    function generateTile(prevPositions) {
         // arrow function ensures that we're working with the most current state
         // fixes issue where only 1 tile is generated upon startup
         setTiles((prevTiles) => {
             let newTile;
 
             // generate a random tile
+            // if tile is occupied or was occupied before shifting, regenerate
             do {
                 newTile = Math.floor(Math.random() * 16);
-            } while (prevTiles[newTile] !== 0); // if new tile is occupied, regenerate
+            } while (prevTiles[newTile] !== 0 && prevPositions.includes(newTile));
     
             console.log('new tile at: ' + newTile);
             const newTiles = [...prevTiles];
@@ -142,6 +149,7 @@ function Board() {
 
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
+            let prevPositions = [];
 
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
@@ -151,8 +159,10 @@ function Board() {
                     const curr = isVertical ? indexMap[j][i] : indexMap[i][j];
 
                     // only add tiles with values to stack
-                    if (newTiles[curr] > 0)
+                    if (newTiles[curr] > 0) {
                         stack.push(newTiles[curr]);
+                        prevPositions.push(curr);
+                    }
                 }
 
                 stack = stack.reverse();
@@ -164,12 +174,15 @@ function Board() {
                 combineTiles(i, direction, stack, newTiles);
             }
 
-            // check if tiles have changed (if not, dont' generate new random tile)
+            // generate new tile only if tiles have changed
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
-                generateTile();
+                generateTile(prevPositions);
 
             return newTiles;
-        })
+        });
+
+        // Set pendingScore after all tiles have been updated
+        //setPendingScore(currScore);
     }
 
     /*
@@ -177,13 +190,13 @@ function Board() {
     */
     function combineTiles(i, direction, stack, newTiles) {
         let res = [];
-        
+
         while (stack.length > 0) {
             // if there are more than 2 values, combine the top 2 if possible, otherwise just push
             if (stack.length > 1 && (stack[stack.length - 1] === stack[stack.length - 2])) {
-                const val = stack.pop() * 2;
+                const combinedVals = stack.pop() * 2;
                 stack.pop();
-                res.push(val);
+                res.push(combinedVals);
             }
             else {
                 res.push(stack.pop());

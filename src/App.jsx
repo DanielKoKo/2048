@@ -7,14 +7,20 @@ export const GameContext = createContext();
 
 function App() {
   const [isReset, setIsReset] = useState(false);
+  const [score, setScore] = useState(0);
 
   function handleReset(state) {
     setIsReset(state);
   }
 
+  // TODO
+  function handleScoreChange(pendingScore) {
+    setScore(score + pendingScore);
+  }
+
   return (
     <>
-      <GameContext.Provider value={{ isReset, handleReset }}>
+      <GameContext.Provider value={{ isReset, handleReset, score, handleScoreChange }}>
         <TopTab/>
         <Board/>
       </GameContext.Provider>

@@ -1,10 +1,12 @@
 import React, {useState, useContext} from 'react';
+import { GameContext } from './App';
 import './Score.css';
 
 function Score() {
-    const [score, setScore] = useState(0);
+    const { score } = useContext(GameContext);
+    //const [score, setScore] = useState(0);
     const [best, setBest] = useState(0);
-
+    
     return (
         <div className='score-boxes'>
             <div className='score-box'>
