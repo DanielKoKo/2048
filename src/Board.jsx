@@ -55,6 +55,7 @@ function Board() {
     */
     function resetBoard() {
         setTiles(Array(16).fill(0));
+        pendingScoreRef.current = 0;
         initBoard();
     }
 
@@ -189,6 +190,7 @@ function Board() {
                     stack = stack.reverse();
 
                 pendingScoreRef.current += combineTiles(i, direction, stack, newTiles);
+                //console.log('pendingScoreRef.current in for loop: ' + pendingScoreRef.current);
             }
 
             const available = generateAvailable(newTiles);
@@ -202,7 +204,6 @@ function Board() {
 
             return newTiles;
         });
-
     }
 
     /*
@@ -237,6 +238,8 @@ function Board() {
          direction === 'ArrowDown') ? fillTiles(i, 'vertical', res, newTiles) :
                                       fillTiles(i, 'horizontal', res, newTiles);
         
+        
+        //console.log('rowScore: ' + rowColScore);
         return rowColScore;
     }
 
