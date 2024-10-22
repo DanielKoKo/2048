@@ -15,7 +15,7 @@ function App() {
 
   // TODO
   function handleScoreChange(pendingScore) {
-    setScore(score + pendingScore);
+    setScore(pendingScore);
   }
 
   return (

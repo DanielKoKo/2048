@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useRef, useEffect} from 'react';
 import { GameContext } from './App';
 import Tile from './Tile';
 import './Board.css';
@@ -13,9 +13,10 @@ const indexMap = [
 
 function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(0));
-    const { isReset, handleReset } = useContext(GameContext);
+    const { isReset, handleReset, handleScoreChange } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    const pendingScoreRef = useRef(0);
     
     // for mobile swipes
     const [touchStart, setTouchStart] = useState(null);
@@ -44,6 +45,10 @@ function Board() {
             handleReset(false); // reset the isReset variable
         }
     }, [isReset]);
+
+    useEffect(() => {
+        handleScoreChange(pendingScoreRef.current);
+    }, [pendingScoreRef.current])
     
     /*
         reset board and regenerate first 2 tiles
@@ -62,11 +67,13 @@ function Board() {
         
         // testing purposes
         // const newTiles = [...tiles];
-        // newTiles[0] = 8;
-        // newTiles[4] = 8;
-        // newTiles[8] = 8;
-        // newTiles[12] = 8;
-        // setTiles(newTiles);
+        // newTiles[6] = 4;
+        // newTiles[7] = 16;
+        // newTiles[10] = 2;
+        // newTiles[11] = 2;
+        // newTiles[14] = 4;
+        // newTiles[15] = 4;
+        //setTiles(newTiles);
 
         setIsInitialized(true);
     }
@@ -123,7 +130,7 @@ function Board() {
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles];
             const newPosition = available[Math.floor(Math.random() * available.length)]; // generate new tile from available positions
-            console.log('new tile at: ' + newPosition);
+            //console.log('new tile at: ' + newPosition);
 
             // generate either 2 or 4 if board contains a 4, otherwise generate 2
             newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
@@ -162,7 +169,6 @@ function Board() {
 
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
-            console.log('prevTiles: ', newTiles);
 
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
@@ -182,24 +188,21 @@ function Board() {
                 if (reverseStack)
                     stack = stack.reverse();
 
-                combineTiles(i, direction, stack, newTiles);
+                pendingScoreRef.current += combineTiles(i, direction, stack, newTiles);
             }
 
             const available = generateAvailable(newTiles);
-            console.log('available: ' + available);
+            //console.log('available: ' + available);
 
             // generate new tile only if tiles have changed
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
                 generateTile(available);
 
-            console.log('newTiles: ' + newTiles);
+            //console.log('newTiles: ' + newTiles);
 
             return newTiles;
         });
-        console.log('\n');
 
-        // Set pendingScore after all tiles have been updated
-        //setPendingScore(currScore);
     }
 
     /*
@@ -207,11 +210,13 @@ function Board() {
     */
     function combineTiles(i, direction, stack, newTiles) {
         let res = [];
+        let rowColScore = 0;
 
         while (stack.length > 0) {
             // if there are more than 2 values, combine the top 2 if possible, otherwise just push
             if (stack.length > 1 && (stack[stack.length - 1] === stack[stack.length - 2])) {
                 const combinedVals = stack.pop() * 2;
+                rowColScore += combinedVals;
                 stack.pop();
                 res.push(combinedVals);
             }
@@ -231,6 +236,8 @@ function Board() {
         (direction === 'ArrowUp' || 
          direction === 'ArrowDown') ? fillTiles(i, 'vertical', res, newTiles) :
                                       fillTiles(i, 'horizontal', res, newTiles);
+        
+        return rowColScore;
     }
 
     /*
