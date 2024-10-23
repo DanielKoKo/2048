@@ -5,19 +5,15 @@ import './Score.css';
 
 function Score() {
     const { score } = useContext(GameContext);
-    const [cookie, setCookie] = useCookies(['best']);
-    const [best, setBest] = useState(cookie.best || 0);
+    const [cookie, setCookie] = useCookies(['bestScore']);
+    const [best, setBest] = useState(cookie.bestScore || 0);
 
-    function renderBest() {
+    useEffect(() => {
         if (score > best) {
-            setCookie('best', score);
+            setCookie('bestScore', score);
             setBest(score);
         }
-
-        return (
-            <span>{best}</span>
-        )
-    }
+    }, [score])
     
     return (
         <div className='score-boxes'>
@@ -27,7 +23,7 @@ function Score() {
             </div>
             <div className='score-box'>
                 <p>BEST</p>
-                <span>{renderBest()}</span>
+                <span>{best}</span>
             </div>
         </div>
     )
