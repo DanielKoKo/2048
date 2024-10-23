@@ -17,6 +17,7 @@ function Board() {
     const [isInitialized, setIsInitialized] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
     const pendingScoreRef = useRef(0);
+    const availableRef = useRef(Array.from(Array(16).keys()));
     
     // for mobile swipes
     const [touchStart, setTouchStart] = useState(null);
@@ -38,11 +39,13 @@ function Board() {
         return () => { window.removeEventListener('keydown', onKeyPress); }
     }, []);
 
-    // reset the board if isReset == true
+    // reset board and variables if isReset == true
     useEffect(() => {
         if (isReset) {
+            pendingScoreRef.current = 0;
+            availableRef.current = Array.from(Array(16).keys());
+            handleReset(false);
             resetBoard();
-            handleReset(false); // reset the isReset variable
         }
     }, [isReset]);
 
@@ -55,7 +58,6 @@ function Board() {
     */
     function resetBoard() {
         setTiles(Array(16).fill(0));
-        pendingScoreRef.current = 0;
         initBoard();
     }
 
@@ -63,19 +65,8 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        generateTile(Array.from(Array(16).keys()));
-        generateTile(Array.from(Array(16).keys()));
-        
-        // testing purposes
-        // const newTiles = [...tiles];
-        // newTiles[6] = 4;
-        // newTiles[7] = 16;
-        // newTiles[10] = 2;
-        // newTiles[11] = 2;
-        // newTiles[14] = 4;
-        // newTiles[15] = 4;
-        //setTiles(newTiles);
-
+        generateTile();
+        generateTile();
         setIsInitialized(true);
     }
 
@@ -111,12 +102,10 @@ function Board() {
         const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
         let direction;
 
-        if (isHorizontalSwipe) {
+        if (isHorizontalSwipe) 
             direction = isLeft ? 'ArrowLeft' : 'ArrowRight';
-        }
-        else {
+        else 
             direction = isUp ? 'ArrowUp' : 'ArrowDown';
-        }
 
         handleTileMovement(direction);
     }
@@ -125,15 +114,18 @@ function Board() {
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
     */
-    function generateTile(available) {
-        // arrow function ensures that we're working with the most current state
-        // fixes issue where only 1 tile is generated upon startup
+    function generateTile() {
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles];
-            const newPosition = available[Math.floor(Math.random() * available.length)]; // generate new tile from available positions
+
+            // generate new tile from available positions, then remove that tile from available positions
+            const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
+            const newPosInRef = availableRef.current.indexOf(newPosition);
+            availableRef.current.splice(newPosInRef, 1);
+
             //console.log('new tile at: ' + newPosition);
 
-            // generate either 2 or 4 if board contains a 4, otherwise generate 2
+            // generate either 2 or 4 if board contains a 4, otherwise only generate 2
             newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
             
             return newTiles;
@@ -141,24 +133,22 @@ function Board() {
     }
 
     /*
+        generate new tile value (2 or 4) with 90% probability of it being 2
+    */
+        function generateRandom() { 
+            return Math.floor(Math.random() < 0.9 ? 2 : 4) 
+        }
+
+    /*
         generate array of available positions for new tile
     */
-    function generateAvailable(newTiles) {
-        let available = [];
+    function updateAvailable(newTiles) {
+        availableRef.current = [];
 
         for (let i = 0; i < newTiles.length; i++) {
             if (newTiles[i] == 0) 
-                available.push(i);
+                availableRef.current.push(i);
         }
-
-        return available;
-    }
-
-    /*
-        generate new tile value (2 or 4) with 90% probability of it being 2
-    */
-    function generateRandom() { 
-        return Math.floor(Math.random() < 0.9 ? 2 : 4) 
     }
 
     /*
@@ -190,15 +180,14 @@ function Board() {
                     stack = stack.reverse();
 
                 pendingScoreRef.current += combineTiles(i, direction, stack, newTiles);
-                //console.log('pendingScoreRef.current in for loop: ' + pendingScoreRef.current);
             }
 
-            const available = generateAvailable(newTiles);
-            //console.log('available: ' + available);
+            updateAvailable(newTiles);
+            //console.log('available: ' + availableRef.current);
 
             // generate new tile only if tiles have changed
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
-                generateTile(available);
+                generateTile();
 
             //console.log('newTiles: ' + newTiles);
 
