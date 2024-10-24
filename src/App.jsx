@@ -13,7 +13,6 @@ function App() {
     setIsReset(state);
   }
 
-  // TODO
   function handleScoreChange(pendingScore) {
     setScore(pendingScore);
   }

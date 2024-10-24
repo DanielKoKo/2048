@@ -279,6 +279,7 @@ function Board() {
             <div className='container'>
                 <div className='game-over' style={{display: isGameOver ? 'flex' : 'none'}}>
                     <span>Game Over!</span>
+                    <button className='try-again-button' onClick={() => {handleReset(true)}}>Try again</button>
                 </div>
                 <div className='board' onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                     {renderTiles()}
