@@ -146,22 +146,6 @@ function Board() {
         });
     }
 
-    function generate1024() {
-        setTiles((prevTiles) => {
-            const newTiles = [...prevTiles];
-
-            // generate new tile from available positions, then remove that tile from available positions
-            const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
-            const indexToRemove = availableRef.current.indexOf(newPosition);
-            availableRef.current.splice(indexToRemove, 1);
-
-            // generate either 2 or 4 if board contains a 4, otherwise only generate 2
-            newTiles[newPosition] = 1024;
-            
-            return newTiles;
-        });
-    }
-
     /*
         generate new tile value (2 or 4) with 90% probability of it being 2
     */
@@ -188,7 +172,6 @@ function Board() {
         const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
         const reverseStack = direction === 'ArrowDown' || direction === 'ArrowRight';
 
-        const prevTiles = [...tiles];
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
 
@@ -330,8 +313,6 @@ function Board() {
                     {renderTiles()}
                 </div>
             </div>
-            
-            <button onClick={() => {generate1024()}}>Generate 1024</button>
         </>
     )
 }
