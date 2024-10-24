@@ -16,6 +16,8 @@ function Board() {
     const { isReset, handleReset, handleScoreChange } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
+    const [isGameWon, setIsGameWon] = useState(false);
+    const [keepGoing, setKeepGoing] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
     const pendingScoreRef = useRef(0);
     const availableRef = useRef(Array.from(Array(16).keys()));
@@ -46,7 +48,6 @@ function Board() {
             pendingScoreRef.current = 0;
             availableRef.current = Array.from(Array(16).keys());
             handleReset(false);
-            setIsGameOver(false);
             resetBoard();
         }
     }, [isReset]);
@@ -56,15 +57,16 @@ function Board() {
     }, [pendingScoreRef.current])
 
     useEffect(() => {
-        if (!checkValidMoves()) 
-            setIsGameOver(true);
-    });
+        checkWinOrLose();
+    }, [tiles]);
     
     /*
         reset board and regenerate first 2 tiles
     */
     function resetBoard() {
         setIsGameOver(false);
+        setIsGameWon(false);
+        setKeepGoing(false);
         setTiles(Array(16).fill(0));
         initBoard();
     }
@@ -75,6 +77,7 @@ function Board() {
     function initBoard() {
         generateTile();
         generateTile();
+
         setIsInitialized(true);
     }
 
@@ -118,6 +121,11 @@ function Board() {
         handleTileMovement(direction);
     }
 
+    function handleKeepGoing() {
+        setKeepGoing(true);
+        setIsGameWon(false);
+    }
+
     /*
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
@@ -133,6 +141,22 @@ function Board() {
 
             // generate either 2 or 4 if board contains a 4, otherwise only generate 2
             newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
+            
+            return newTiles;
+        });
+    }
+
+    function generate1024() {
+        setTiles((prevTiles) => {
+            const newTiles = [...prevTiles];
+
+            // generate new tile from available positions, then remove that tile from available positions
+            const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
+            const indexToRemove = availableRef.current.indexOf(newPosition);
+            availableRef.current.splice(indexToRemove, 1);
+
+            // generate either 2 or 4 if board contains a 4, otherwise only generate 2
+            newTiles[newPosition] = 1024;
             
             return newTiles;
         });
@@ -164,8 +188,10 @@ function Board() {
         const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
         const reverseStack = direction === 'ArrowDown' || direction === 'ArrowRight';
 
+        const prevTiles = [...tiles];
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
+
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
                 let stack = []; // store entire row/column in stack
@@ -257,6 +283,17 @@ function Board() {
         return false;
     }
 
+    function checkWinOrLose() {
+        if (keepGoing)
+            return;
+
+        if (!isGameWon && tiles.includes(2048)) 
+            setIsGameWon(true);
+        
+        if (!checkValidMoves()) 
+            setIsGameOver(true);
+    }
+
     /*
         update the current row/column with new values 
     */
@@ -274,17 +311,27 @@ function Board() {
         return tiles.map((val, i) => <Tile key={i} val={val}/>);
     }
 
+    function renderResult() {
+        if (isGameOver) { return <span>Game Over!</span> }
+        if (isGameWon) { return <span>You win!</span> }
+    }
+
     return (
         <>
             <div className='container'>
-                <div className='game-over' style={{display: isGameOver ? 'flex' : 'none'}}>
-                    <span>Game Over!</span>
-                    <button className='try-again-button' onClick={() => {handleReset(true)}}>Try again</button>
+                <div className='finished' style={{display: (isGameOver || isGameWon) ? 'flex' : 'none'}}>
+                    {renderResult()}
+                    <div className='finished-buttons-row'>
+                        <button onClick={() => {handleKeepGoing()}}>Keep going</button>
+                        <button onClick={() => {handleReset(true)}}>Try again</button>
+                    </div>
                 </div>
                 <div className='board' onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                     {renderTiles()}
                 </div>
             </div>
+            
+            <button onClick={() => {generate1024()}}>Generate 1024</button>
         </>
     )
 }
