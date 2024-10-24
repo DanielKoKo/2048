@@ -15,6 +15,7 @@ function Board() {
     const [tiles, setTiles] = useState(Array(16).fill(0));
     const { isReset, handleReset, handleScoreChange } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
     const validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
     const pendingScoreRef = useRef(0);
     const availableRef = useRef(Array.from(Array(16).keys()));
@@ -39,12 +40,13 @@ function Board() {
         return () => { window.removeEventListener('keydown', onKeyPress); }
     }, []);
 
-    // reset board and variables if isReset == true
+    // reset board and variables if New Game button is pressed
     useEffect(() => {
         if (isReset) {
             pendingScoreRef.current = 0;
             availableRef.current = Array.from(Array(16).keys());
             handleReset(false);
+            setIsGameOver(false);
             resetBoard();
         }
     }, [isReset]);
@@ -52,11 +54,17 @@ function Board() {
     useEffect(() => {
         handleScoreChange(pendingScoreRef.current);
     }, [pendingScoreRef.current])
+
+    useEffect(() => {
+        if (!checkValidMoves()) 
+            setIsGameOver(true);
+    });
     
     /*
         reset board and regenerate first 2 tiles
     */
     function resetBoard() {
+        setIsGameOver(false);
         setTiles(Array(16).fill(0));
         initBoard();
     }
@@ -120,10 +128,8 @@ function Board() {
 
             // generate new tile from available positions, then remove that tile from available positions
             const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
-            const newPosInRef = availableRef.current.indexOf(newPosition);
-            availableRef.current.splice(newPosInRef, 1);
-
-            //console.log('new tile at: ' + newPosition);
+            const indexToRemove = availableRef.current.indexOf(newPosition);
+            availableRef.current.splice(indexToRemove, 1);
 
             // generate either 2 or 4 if board contains a 4, otherwise only generate 2
             newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
@@ -160,7 +166,6 @@ function Board() {
 
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
-
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
                 let stack = []; // store entire row/column in stack
@@ -183,13 +188,10 @@ function Board() {
             }
 
             updateAvailable(newTiles);
-            //console.log('available: ' + availableRef.current);
 
             // generate new tile only if tiles have changed
             if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
                 generateTile();
-
-            //console.log('newTiles: ' + newTiles);
 
             return newTiles;
         });
@@ -227,9 +229,32 @@ function Board() {
          direction === 'ArrowDown') ? fillTiles(i, 'vertical', res, newTiles) :
                                       fillTiles(i, 'horizontal', res, newTiles);
         
-        
         //console.log('rowScore: ' + rowColScore);
         return rowColScore;
+    }
+
+    function checkValidMoves() {
+        // if there are spaces available to generate new tile
+        if (availableRef.current.length > 0) 
+            return true;
+
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                const currIndex = indexMap[i][j];
+
+                // if current tile is available
+                if (tiles[currIndex] === 0) 
+                    return true;
+
+                // if a move can be made based on current position
+                if ((i < 3 && tiles[currIndex] === tiles[indexMap[i + 1][j]]) ||
+                    (j < 3 && tiles[currIndex] === tiles[indexMap[i][j + 1]])) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /*
@@ -251,7 +276,10 @@ function Board() {
 
     return (
         <>
-            <div className='game-over' display='none'>
+            <div className='container'>
+                <div className='game-over' style={{display: isGameOver ? 'flex' : 'none'}}>
+                    <span>Game Over!</span>
+                </div>
                 <div className='board' onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                     {renderTiles()}
                 </div>

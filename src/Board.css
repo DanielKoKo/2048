@@ -4,7 +4,23 @@ body {
     overflow: hidden; /* prevent scrolling */
 }
 
+@media only screen 
+    and (max-width: 1000px) {
+        body {
+            touch-action: none;
+        }
+    }
+
+.container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
 .board {
+    position: relative;
+    display: flex;
+    z-index: 1;
     display: grid;
     grid-template-rows: repeat(4, 1fr);
     grid-template-columns: repeat(4, 1fr);
@@ -21,5 +37,19 @@ body {
 }
 
 .game-over {
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+    background-color: hsla(0, 0%, 100%, 0.381);
+}
 
+span {
+    color: #796E64;
+    font-size: 4rem;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
 }
