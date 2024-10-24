@@ -305,7 +305,7 @@ function Board() {
                 <div className='finished' style={{display: (isGameOver || isGameWon) ? 'flex' : 'none'}}>
                     {renderResult()}
                     <div className='finished-buttons-row'>
-                        <button style={{display: isGameWon ? 'flex' : none }} onClick={() => {handleKeepGoing()}}>Keep going</button>
+                        <button style={{display: isGameWon ? 'flex' : 'none' }} onClick={() => {handleKeepGoing()}}>Keep going</button>
                         <button onClick={() => {handleReset(true)}}>Try again</button>
                     </div>
                 </div>
