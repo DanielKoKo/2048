@@ -1,6 +1,5 @@
 .tile {
     align-content: center;
-    aspect-ratio: 1 / 1; /* maintains a square aspect ratio */
     border-radius: 3px;
     width: 18.5vw;
     height: 18.5vw;
@@ -9,15 +8,53 @@
     text-align: center;
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 3rem;
-
-    color: #796E64;
+    font-size: 3.5rem;
 }
 
+.tile[digits='4'] {
+  font-size: 3rem;
+}
+
+.tile[digits='5'] {
+  font-size: 2.5rem;
+}
+
+.tile[digits='6'] {
+  font-size: 2.1rem;
+}
+
+.tile[digits='7'] {
+  font-size: 2rem;
+}
+
+.tile[digits='8'] {
+  font-size: 1.7rem;
+}
 
 @media only screen 
   and (max-width: 480px) {
     .tile {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
+
+    .tile[digits='4'] {
+      font-size: 1.8rem;
+    }
+    
+    .tile[digits='5'] {
+      font-size: 1.4rem;
+    }
+    
+    .tile[digits='6'] {
+      font-size: 1.3rem;
+    }
+    
+    .tile[digits='7'] {
+      font-size: 1.1rem;
+    }
+    
+    .tile[digits='8'] {
+      font-size: 1rem;
+    }
+    
   }

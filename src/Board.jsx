@@ -272,7 +272,7 @@ function Board() {
         if (keepGoing)
             return;
 
-        if (!isGameWon && tiles.includes(2048)) 
+        if (!isGameWon && tiles.some(tile => tile.val === 2048)) 
             setIsGameWon(true);
         
         if (!checkValidMoves()) 

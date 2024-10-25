@@ -22,8 +22,12 @@ function Tile({ val, isNew }) {
     const backgroundColor = colorMap[val] || '#3C3A32';
     const textColor = parseInt(val) < 8 ? '#796E64' : '#F9F6F1';
 
+    function getDigits() {
+        return val.toString().length;
+    }
+
     return (
-        <div className='tile' style={{backgroundColor: backgroundColor, color: textColor}}>
+        <div className='tile' digits={getDigits()} style={{backgroundColor: backgroundColor, color: textColor}}>
             {val > 0 ? val : null}
         </div>
     )

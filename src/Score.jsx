@@ -14,16 +14,20 @@ function Score() {
             setBest(score);
         }
     }, [score])
+
+    function getDigits(val) {
+        return (val.toString().length);
+    }
     
     return (
         <div className='score-boxes'>
             <div className='score-box'>
                 <p>SCORE</p>
-                <span>{score}</span>
+                <span scoreDigits={getDigits(score)}>{score}</span>
             </div>
             <div className='score-box'>
                 <p>BEST</p>
-                <span>{best}</span>
+                <span bestDigits={getDigits(best)}>{best}</span>
             </div>
         </div>
     )

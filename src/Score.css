@@ -9,6 +9,7 @@
     align-items: center;
     align-self: center;
     border-radius: 4px;
+    height: 70px;
     width: 150px;
     padding: 5px 5px;
     background-color: #BDAD9E;
@@ -26,7 +27,7 @@
 }
 
 .score-box span {
-    font-size: 2.5rem;
+    font-size: 2rem;
     color: #FFFFFF;
 }
 
@@ -37,7 +38,8 @@
         align-items: center;
         align-self: center;
         border-radius: 4px;
-        width: 100px;
+        height: 51px;
+        width: 110px;
         padding: 5px 5px;
         background-color: #BDAD9E;
         font-weight: bold;
@@ -54,7 +56,7 @@
     }
     
     .score-box span {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: #FFFFFF;
     }
 }
