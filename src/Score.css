@@ -11,6 +11,7 @@
     border-radius: 4px;
     height: 70px;
     width: 150px;
+    max-width: 150px;
     padding: 5px 5px;
     background-color: #BDAD9E;
     font-weight: bold;
@@ -27,7 +28,7 @@
 }
 
 .score-box span {
-    font-size: 2rem;
+    font-size: 1.9rem;
     color: #FFFFFF;
 }
 
