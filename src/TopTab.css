@@ -67,6 +67,7 @@
         font-family: Arial, Helvetica, sans-serif;
     }
 
+    /* new game button is centered on mobile */
     .new-game-row button {
         margin-left: 0;
         height: 45px;

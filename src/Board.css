@@ -48,7 +48,14 @@ body {
     height: 100%;
     width: 100%;
     background-color: hsla(52, 51%, 66%, 0.46);
+    animation: fadeIn 0.3s;
 }
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+  
 
 span {
     color: #F9F6F1;
