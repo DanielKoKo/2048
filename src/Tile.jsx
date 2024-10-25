@@ -17,7 +17,7 @@ const colorMap = {
     2048: '#EDC22E'
 };
 
-function Tile({ val }) {
+function Tile({ val, isNew }) {
     // background and text color based on value
     const backgroundColor = colorMap[val] || '#3C3A32';
     const textColor = parseInt(val) < 8 ? '#796E64' : '#F9F6F1';

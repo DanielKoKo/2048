@@ -12,7 +12,7 @@ const indexMap = [
 ];
 
 function Board() {
-    const [tiles, setTiles] = useState(Array(16).fill(0));
+    const [tiles, setTiles] = useState(Array(16).fill().map(() => ({ val: 0, isNew: false })));
     const { isReset, handleReset, handleScoreChange } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
@@ -67,7 +67,7 @@ function Board() {
         setIsGameOver(false);
         setIsGameWon(false);
         setKeepGoing(false);
-        setTiles(Array(16).fill(0));
+        setTiles(Array(16).fill().map(() => ({ val: 0, isNew: false })));
         initBoard();
     }
 
@@ -77,7 +77,6 @@ function Board() {
     function initBoard() {
         generateTile();
         generateTile();
-
         setIsInitialized(true);
     }
 
@@ -140,8 +139,9 @@ function Board() {
             availableRef.current.splice(indexToRemove, 1);
 
             // generate either 2 or 4 if board contains a 4, otherwise only generate 2
-            newTiles.includes(4) ? newTiles[newPosition] = generateRandom() : newTiles[newPosition] = 2;
-            
+            const newVal = newTiles.some(tile => tile.val === 4) ? generateRandom() : 2;
+            newTiles[newPosition] = {val: newVal, isNew: true};
+
             return newTiles;
         });
     }
@@ -160,7 +160,7 @@ function Board() {
         availableRef.current = [];
 
         for (let i = 0; i < newTiles.length; i++) {
-            if (newTiles[i] == 0) 
+            if (newTiles[i].val == 0) 
                 availableRef.current.push(i);
         }
     }
@@ -175,6 +175,8 @@ function Board() {
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
 
+            //console.log(`newTiles: ${tiles.map(tile => tile.val)}`)
+
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
                 let stack = []; // store entire row/column in stack
@@ -183,8 +185,8 @@ function Board() {
                     const curr = isVertical ? indexMap[j][i] : indexMap[i][j];
 
                     // only add tiles with values to stack
-                    if (newTiles[curr] > 0) 
-                        stack.push(newTiles[curr]);
+                    if (newTiles[curr].val > 0) 
+                        stack.push(newTiles[curr].val);
                 }
 
                 stack = stack.reverse();
@@ -219,15 +221,15 @@ function Board() {
                 const combinedVals = stack.pop() * 2;
                 rowColScore += combinedVals;
                 stack.pop();
-                res.push(combinedVals);
+                res.push({ val: combinedVals, isNew: false });
             }
             else {
-                res.push(stack.pop());
+                res.push({ val: stack.pop(), isNew: false });
             }
         }
 
         // fill remaining spaces with 0s
-        res = res.concat(Array(4 - res.length).fill(0))
+        res = res.concat(Array(4 - res.length).fill({ val: 0, isNew: false }))
 
         // flip stack if direction is down or right
         if (direction === 'ArrowDown' || direction === 'ArrowRight')
@@ -291,14 +293,14 @@ function Board() {
         renders all tiles
     */
     function renderTiles() {
-        return tiles.map((val, i) => <Tile key={i} val={val}/>);
+        return tiles.map((tile, i) => <Tile key={i} val={tile.val} isNew={tile.isNew}/>);
     }
 
     function renderResult() {
         if (isGameOver) { return <span>Game Over!</span> }
         if (isGameWon) { return <span>You win!</span> }
     }
-
+    
     return (
         <>
             <div className='container'>
