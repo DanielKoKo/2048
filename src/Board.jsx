@@ -199,11 +199,22 @@ function Board() {
             updateAvailable(newTiles);
 
             // generate new tile only if tiles have changed
-            if (JSON.stringify(prevTiles) !== JSON.stringify(newTiles))
+            if (!boardsEqual(prevTiles.map(tiles => tiles.val), newTiles.map(tiles => tiles.val)))
                 generateTile();
 
             return newTiles;
         });
+    }
+
+    /*
+        check if 2 boards are equal
+    */
+    function boardsEqual(b1, b2) {
+        for (let i = 0; i < 16; i++) {
+            if (b1[i] !== b2[i]) { return false; }
+        }
+
+        return true;
     }
 
     /*
@@ -212,8 +223,6 @@ function Board() {
     function combineTiles(i, direction, stack, newTiles) {
         let res = [];
         let rowColScore = 0;
-
-        console.log('stack: ' + JSON.stringify(stack));
 
         while (stack.length > 0) {
             // if there are more than 2 values, combine the top 2 if possible, otherwise just push
@@ -224,7 +233,7 @@ function Board() {
                 res.push({ val: combinedVals, isNew: false });
             }
             else {
-                res.push(stack.pop());
+                res.push({ val: stack.pop().val, isNew: false });
             }
         }
 
