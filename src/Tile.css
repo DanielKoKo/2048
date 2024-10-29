@@ -12,7 +12,7 @@
 }
 
 .tile[new-tile='true'] {
-  animation: tileAppear 0.2s ease-out;
+  animation: tileAppear 0.2s ease-out forwards;
 }
 
 @keyframes tileAppear {

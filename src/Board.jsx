@@ -262,12 +262,12 @@ function Board() {
                 const currIndex = indexMap[i][j];
 
                 // if current tile is available
-                if (tiles[currIndex] === 0) 
+                if (tiles[currIndex].val === 0) 
                     return true;
 
                 // if a move can be made based on current position
-                if ((i < 3 && tiles[currIndex] === tiles[indexMap[i + 1][j]]) ||
-                    (j < 3 && tiles[currIndex] === tiles[indexMap[i][j + 1]])) {
+                if ((i < 3 && tiles[currIndex].val === tiles[indexMap[i + 1][j]].val) ||
+                    (j < 3 && tiles[currIndex].val === tiles[indexMap[i][j + 1]].val)) {
                     return true;
                 }
             }
@@ -301,7 +301,7 @@ function Board() {
         renders all tiles
     */
     function renderTiles() {
-        return tiles.map((tile, i) => <Tile key={i} val={tile.val} isNew={tile.isNew}/>);
+        return tiles.map((tile, i) => <Tile key={`${tile.val}-${tile.isNew}-${i}-${Date.now()}`} val={tile.val} isNew={tile.isNew}/>);
     }
 
     function renderResult() {
