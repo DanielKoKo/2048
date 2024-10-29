@@ -175,8 +175,6 @@ function Board() {
         setTiles((prevTiles) => {
             const newTiles = [...prevTiles]; 
 
-            //console.log(`newTiles: ${tiles.map(tile => tile.val)}`)
-
             // iterate through rows or columns based on direction
             for (let i = 0; i < 4; i++) {
                 let stack = []; // store entire row/column in stack
@@ -186,7 +184,7 @@ function Board() {
 
                     // only add tiles with values to stack
                     if (newTiles[curr].val > 0) 
-                        stack.push(newTiles[curr].val);
+                        stack.push(newTiles[curr]);
                 }
 
                 stack = stack.reverse();
@@ -215,16 +213,18 @@ function Board() {
         let res = [];
         let rowColScore = 0;
 
+        console.log('stack: ' + JSON.stringify(stack));
+
         while (stack.length > 0) {
             // if there are more than 2 values, combine the top 2 if possible, otherwise just push
-            if (stack.length > 1 && (stack[stack.length - 1] === stack[stack.length - 2])) {
-                const combinedVals = stack.pop() * 2;
+            if (stack.length > 1 && (stack[stack.length - 1].val === stack[stack.length - 2].val)) {
+                const combinedVals = stack.pop().val * 2;
                 rowColScore += combinedVals;
                 stack.pop();
                 res.push({ val: combinedVals, isNew: false });
             }
             else {
-                res.push({ val: stack.pop(), isNew: false });
+                res.push(stack.pop());
             }
         }
 
@@ -239,8 +239,7 @@ function Board() {
         (direction === 'ArrowUp' || 
          direction === 'ArrowDown') ? fillTiles(i, 'vertical', res, newTiles) :
                                       fillTiles(i, 'horizontal', res, newTiles);
-        
-        //console.log('rowScore: ' + rowColScore);
+
         return rowColScore;
     }
 
