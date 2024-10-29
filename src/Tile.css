@@ -11,6 +11,21 @@
     font-size: 3.5rem;
 }
 
+.tile[new-tile='true'] {
+  animation: tileAppear 0.2s ease-out;
+}
+
+@keyframes tileAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .tile[digits='4'] {
   font-size: 3rem;
 }

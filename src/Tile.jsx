@@ -27,7 +27,7 @@ function Tile({ val, isNew }) {
     }
 
     return (
-        <div className='tile' digits={getDigits()} style={{backgroundColor: backgroundColor, color: textColor}}>
+        <div className='tile' digits={getDigits()} new-tile={isNew.toString()} style={{backgroundColor: backgroundColor, color: textColor}}>
             {val > 0 ? val : null}
         </div>
     )
