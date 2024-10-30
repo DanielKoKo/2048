@@ -1,4 +1,5 @@
 import React, {useState, useContext, useRef, useEffect} from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { GameContext } from './App';
 import Tile from './Tile';
 import './Board.css';
@@ -118,6 +119,7 @@ function Board() {
             direction = isUp ? 'ArrowUp' : 'ArrowDown';
 
         handleTileMovement(direction);
+
     }
 
     function handleKeepGoing() {
@@ -140,7 +142,7 @@ function Board() {
 
             // generate either 2 or 4 if board contains a 4, otherwise only generate 2
             const newVal = newTiles.some(tile => tile.val === 4) ? generateRandom() : 2;
-            newTiles[newPosition] = {val: newVal, isNew: true};
+            newTiles[newPosition] = {val: newVal, isNew: true, uuid: uuidv4() };
 
             return newTiles;
         });
@@ -197,7 +199,7 @@ function Board() {
             }
 
             updateAvailable(newTiles);
-
+            
             // generate new tile only if tiles have changed
             if (!boardsEqual(prevTiles.map(tiles => tiles.val), newTiles.map(tiles => tiles.val)))
                 generateTile();
@@ -301,7 +303,7 @@ function Board() {
         renders all tiles
     */
     function renderTiles() {
-        return tiles.map((tile, i) => <Tile key={`${tile.val}-${tile.isNew}-${i}-${Date.now()}`} val={tile.val} isNew={tile.isNew}/>);
+        return tiles.map((tile, i) => <Tile key={tile.uuid} val={tile.val} isNew={tile.isNew}/>);
     }
 
     function renderResult() {
