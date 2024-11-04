@@ -20,8 +20,10 @@ function App() {
   return (
     <>
       <GameContext.Provider value={{ isReset, handleReset, score, handleScoreChange }}>
-        <TopTab/>
-        <Board/>
+        <div className='container'>
+          <TopTab/>
+          <Board/>
+        </div>
       </GameContext.Provider>
     </>
   )

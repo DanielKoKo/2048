@@ -1,8 +1,8 @@
-.rows {
+.TopTab-container {
     display: flex;
     flex-direction: column;
-    margin-top: 30px;
-    max-width: 650px;
+    margin-top: 20px;
+    width: clamp(400px, 92vw, 600px);
 }
 
 .title-and-scores {
@@ -14,27 +14,27 @@
 
 .title-and-scores h1 {
     color: #796E64;
-    font-size: 6rem;
+    font-size: clamp(3.4rem, 8vw, 5rem);
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 .new-game-row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-top: 15px;
     margin-bottom: 15px;
 }
 
 .new-game-row p {
     color: #796E64;
-    font-size: 1.5rem;
+    font-size: clamp(1.3rem, 3vw, 1.5rem);
     font-family: Arial, Helvetica, sans-serif;
 }
 
 .new-game-row button {
-    margin-left: auto;
-    height: 45px;
-    width: 100px;
+    height: clamp(30px, 10vh, 45px);
     border: none;
     border-radius: 4px;
     color: #F9F6F1;
@@ -48,38 +48,13 @@
     cursor: pointer;
 }
 
-@media only screen 
-  and (max-width: 480px) {
+@media (max-width: 680px) {
     .new-game-row {
         flex-direction: column;
-        margin-bottom: 15px;
-    }
-    
-    .title-and-scores h1 {
-        color: #796E64;
-        font-size: 3.2rem;
-        font-weight: bold;
-        font-family: Arial, Helvetica, sans-serif;
     }
 
-    .new-game-row p {
-        color: #796E64;
-        font-size: 1.3rem;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-
-    /* new game button is centered on mobile */
     .new-game-row button {
-        margin-left: 0;
-        height: 45px;
-        width: 100px;
-        border: none;
-        border-radius: 4px;
-        color: #F9F6F1;
-        background-color: #927963;
-        font-size: 1rem;
-        font-weight: bold;
-        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 0px;
+        margin-right: 0px;
     }
-    
 }

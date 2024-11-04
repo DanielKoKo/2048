@@ -313,7 +313,7 @@ function Board() {
     
     return (
         <>
-            <div className='container'>
+            <div className='board-container'>
                 <div className='finished' style={{display: (isGameOver || isGameWon) ? 'flex' : 'none'}}>
                     {renderResult()}
                     <div className='finished-buttons-row'>

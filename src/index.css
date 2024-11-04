@@ -1,5 +1,6 @@
 body {
- background-color: #FAF8EE;
- width: 96%;
- height: 100%;
+    background-color: #FAF8EE;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
 }

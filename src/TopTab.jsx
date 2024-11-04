@@ -11,7 +11,7 @@ function TopTab() {
     }
 
     return (
-        <div className='rows'>
+        <div className='TopTab-container'>
             <div className='title-and-scores'>
                 <h1>2048</h1>
                 <Score/>
