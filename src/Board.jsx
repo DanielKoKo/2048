@@ -77,8 +77,9 @@ function Board() {
     */
     function initBoard() {
         const newTiles = [...tiles];
-        generateTile(newTiles);
-        generateTile(newTiles);
+        // generateTile(newTiles);
+        // generateTile(newTiles);
+        newTiles[0] = {val: 1000, isNew: true};
         setTiles(newTiles);
         setIsInitialized(true);
     }

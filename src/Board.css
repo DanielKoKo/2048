@@ -23,14 +23,20 @@
     border-radius: 10px;
     padding: 8px;
     width: clamp(400px, 92vw, 600px);
-    max-height: 92vw;
     background-color: #BDAD9E;
 }
 
-@media (max-height: 1105px) {
+@media (max-width: 1800px) {
     .board {
         width: auto;
-        height: clamp(400px, 70vh, 600px);
+        height: clamp(550px, 10vh, 600px);
+    }
+}
+
+@media (max-width: 450px) {
+    .board {
+        width: 400px;
+        height: auto;
     }
 }
 
