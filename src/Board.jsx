@@ -76,8 +76,10 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        generateTile();
-        generateTile();
+        const newTiles = [...tiles];
+        generateTile(newTiles);
+        generateTile(newTiles);
+        setTiles(newTiles);
         setIsInitialized(true);
     }
 
@@ -131,21 +133,15 @@ function Board() {
         places a new random tile (either 2 or 4) on the board
         - will only place 4 when there's already a 4 on the board
     */
-    function generateTile() {
-        setTiles((prevTiles) => {
-            const newTiles = [...prevTiles];
+    function generateTile(newTiles) {
+        // generate new tile from available positions, then remove that tile from available positions
+        const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
+        const indexToRemove = availableRef.current.indexOf(newPosition);
+        availableRef.current.splice(indexToRemove, 1);
 
-            // generate new tile from available positions, then remove that tile from available positions
-            const newPosition = availableRef.current[Math.floor(Math.random() * availableRef.current.length)];
-            const indexToRemove = availableRef.current.indexOf(newPosition);
-            availableRef.current.splice(indexToRemove, 1);
-
-            // generate either 2 or 4 if board contains a 4, otherwise only generate 2
-            const newVal = newTiles.some(tile => tile.val === 4) ? generateRandom() : 2;
-            newTiles[newPosition] = {val: newVal, isNew: true, uuid: uuidv4() };
-
-            return newTiles;
-        });
+        // generate either 2 or 4 if board contains a 4, otherwise only generate 2
+        const newVal = newTiles.some(tile => tile.val === 4) ? generateRandom() : 2;
+        newTiles[newPosition] = {val: newVal, isNew: true, uuid: uuidv4() };
     }
 
     /*
@@ -202,7 +198,7 @@ function Board() {
             
             // generate new tile only if tiles have changed
             if (!boardsEqual(prevTiles.map(tiles => tiles.val), newTiles.map(tiles => tiles.val)))
-                generateTile();
+                generateTile(newTiles);
 
             return newTiles;
         });

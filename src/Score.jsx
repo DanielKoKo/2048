@@ -1,16 +1,18 @@
 import React, {useState, useContext, useEffect} from 'react';
-import { useCookies } from 'react-cookie';
+import Cookies from 'universal-cookie';
 import { GameContext } from './App';
 import './Score.css';
 
 function Score() {
     const { score } = useContext(GameContext);
-    const [cookie, setCookie] = useCookies(['bestScore']);
-    const [best, setBest] = useState(cookie.bestScore || 0);
+    const cookies = new Cookies(null, { path: '/' });
+    const [best, setBest] = useState(parseInt(cookies.get('bestScore')) || 0);
 
     useEffect(() => {
-        if (score > best) {
-            setCookie('bestScore', score);
+        const cookieScore = parseInt(cookies.get('bestScore')) || -1;
+
+        if (score > cookieScore) {
+            cookies.set('bestScore', score);
             setBest(score);
         }
     }, [score])
