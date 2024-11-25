@@ -13,7 +13,7 @@ const indexMap = [
 ];
 
 function Board() {
-    const [tiles, setTiles] = useState(Array(16).fill().map(() => ({ val: 0, isNew: false })));
+    const [tiles, setTiles] = useState([]);
     const { isReset, handleReset, handleScoreChange } = useContext(GameContext);
     const [isInitialized, setIsInitialized] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
@@ -36,7 +36,6 @@ function Board() {
 
     useEffect(() => {
         if (!isInitialized) { initBoard(); }
-
         window.addEventListener('keydown', onKeyPress);
 
         // clean up
@@ -68,7 +67,6 @@ function Board() {
         setIsGameOver(false);
         setIsGameWon(false);
         setKeepGoing(false);
-        setTiles(Array(16).fill().map(() => ({ val: 0, isNew: false })));
         initBoard();
     }
 
@@ -76,7 +74,7 @@ function Board() {
         initializes board with 2 random tiles with value 2
     */
     function initBoard() {
-        const newTiles = [...tiles];
+        const newTiles = Array(16).fill().map(() => ({ val: 0, isNew: false }));
         generateTile(newTiles);
         generateTile(newTiles);
         setTiles(newTiles);
